@@ -1,0 +1,218 @@
+<?php
+require_once 'config/db.php';
+
+// GET active banners
+
+$banner = "SELECT * FROM banners WHERE status = 1 ORDER BY id DESC";
+$banners = mysqli_query($conn, $banner);
+
+// GET popular cars (most searched)
+$popular = "SELECT * FROM cars WHERE is_popular = 1 AND status = 1 ORDER BY id DESC LIMIT 8";
+$popularCars = mysqli_query($conn, $popular);
+
+// GET latest cars
+$latest="SELECT * FROM cars WHERE is_latest = 1 AND status = 1 ORDER BY id DESC LIMIT 8";
+$latestCars = mysqli_query($conn, $latest);
+
+include 'includes/header.php';
+?>
+
+    <!-- Hero Banner Section -->
+    <section class="hero-section">
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <?php foreach($banners as $index => $banner): ?>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?php echo $index; ?>" <?php echo $index === 0 ? 'class="active"' : ''; ?>></button>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="carousel-inner">
+                <?php foreach($banners as $index => $banner): ?>
+                <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                    <div class="banner-slide" style="background-image: url('uploads/banners/<?php echo $banner['image']; ?>');">
+                        <div class="banner-overlay">
+                            <div class="container">
+                                <div class="banner-content text-center text-white">
+                                    <h1 class="display-4 fw-bold mb-3"><?php echo $banner['title']; ?></h1>
+                                    <p class="lead mb-4"><?php echo $banner['subtitle']; ?></p>
+                                    <a href="<?php echo $banner['link']; ?>" class="btn btn-primary btn-lg px-5">Book Now <i class="fas fa-arrow-right ms-2"></i></a> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+
+                <?php if(empty($banners)): ?>
+                <div class="carousel-item active">
+                    <div class="banner-slide default-banner">
+                        <div class="banner-overlay">
+                            <div class="container">
+                                <div class="banner-content text-center text-white">
+                                    <h1 class="display-4 fw-bold mb-3">Find Your Dream Car</h1>
+                                    <p class="lead mb-4">Explore thousands of cars at the best prices</p>
+                                    <a href="inquiry.php" class="btn btn-primary btn-lg px-5">Get Started</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Search Box Section -->
+    <section class="search-section py-3">
+        <div class="container">
+            <div class="search-box bg-white shadow rounded p-4">
+                <form class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Select Brand</label>
+                        <select class="form-select">
+                            <option value="">All Brands</option>
+                            <option value="Maruti Suzuki">Maruti Suzuki</option>
+                            <option value="Hyundai">Hyundai</option>
+                            <option value="Tata">Tata</option>
+                            <option value="Honda">Honda</option>
+                            <option value="Kia">Kia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Car Type</label>
+                        <select class="form-select">
+                            <option value="">All Types</option>
+                            <option value="Hatchback">Hatchback</option>
+                            <option value="Sedan">Sedan</option>
+                            <option value="SUV">SUV</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Budget</label>
+                        <select class="form-select">
+                            <option value="">Select Budget</option>
+                            <option value="5">Under 5 Lakh</option>
+                            <option value="10">5 - 10 Lakh</option>
+                            <option value="15">10 - 15 Lakh</option>
+                            <option value="20">Above 15 Lakh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Search Cars
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Most Searched Cars Section -->
+    <section class="popular-cars-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h2 class="fw-bold">Most Searched Cars</h2>
+                <p class="text-muted">Explore our most popular car choices</p>
+            </div>
+
+            <div class="row">
+                <?php if(!empty($popularCars)): ?>
+                    <?php foreach($popularCars as $car): ?>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="car-card">
+                            <div class="car-image">
+                                <?php if(file_exists('uploads/cars/' . $car['image'])): ?>
+                                    <img src="uploads/cars/<?php echo $car['image']; ?>" alt="<?php echo $car['name']; ?>">
+                                <?php else: ?>
+                                    <img src="https://via.placeholder.com/300x200?text=<?php echo urlencode($car['name']); ?>" alt="<?php echo $car['name']; ?>">
+                                <?php endif; ?>
+                                <span class="car-type-badge"><?php echo $car['car_type']; ?></span>
+                            </div>
+                            <div class="car-details">
+                                <h5 class="car-name"><?php echo $car['brand']; ?> <?php echo $car['name']; ?></h5>
+                                <p class="car-price text-primary fw-bold"><?php echo $car['price']; ?> onwards</p>
+                                <div class="car-features">
+                                    <span><i class="fas fa-gas-pump me-1"></i><?php echo $car['fuel_type']; ?></span>
+                                </div>
+                                <a href="inquiry.php" class="btn btn-outline-primary btn-sm mt-3 w-100">Get Quote</a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No cars available at the moment.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-outline-primary px-5">View All Cars</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Cars Section -->
+    <section class="latest-cars-section py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h2 class="fw-bold">Latest Cars</h2>
+                <p class="text-muted">Check out the newest arrivals in our collection</p>
+            </div>
+
+            <div class="row">
+                <?php if(!empty($latestCars)): ?>
+                    <?php foreach($latestCars as $car): ?>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="car-card">
+                            <div class="car-image">
+                                <?php if(file_exists('uploads/cars/' . $car['image'])): ?>
+                                    <img src="uploads/cars/<?php echo $car['image']; ?>" alt="<?php echo $car['name']; ?>">
+                                <?php else: ?>
+                                    <img src="https://via.placeholder.com/300x200?text=<?php echo urlencode($car['name']); ?>" alt="<?php echo $car['name']; ?>">
+                                <?php endif; ?>
+                                <span class="car-type-badge new-badge">New</span>
+                            </div>
+                            <div class="car-details">
+                                <h5 class="car-name"><?php echo $car['brand']; ?> <?php echo $car['name']; ?></h5>
+                                <p class="car-price text-primary fw-bold"><?php echo $car['price']; ?> onwards</p>
+                                <div class="car-features">
+                                    <span><i class="fas fa-gas-pump me-1"></i><?php echo $car['fuel_type']; ?></span>
+                                </div>
+                                <a href="inquiry.php" class="btn btn-outline-primary btn-sm mt-3 w-100">Get Quote</a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No latest cars available at the moment.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section py-5 bg-primary text-white">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3 class="mb-2">Looking for Your Dream Car?</h3>
+                    <p class="mb-0">Fill out our inquiry form and we'll help you find the perfect car.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <a href="inquiry.php" class="btn btn-light btn-lg px-5">Get Quote Now <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<?php include 'includes/footer.php'; ?>
