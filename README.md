@@ -1,7 +1,6 @@
 # Technology Used
-    Php , Html, Css, js , Bootstrap
+    Php , Html, Css, Js , Bootstrap
 
-# Implemented Features 
      
    
       
