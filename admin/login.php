@@ -26,6 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $adminPassword = $row['password'];
 
             if ($admin == $username) {
+
                 if ($password == $adminPassword) {
                     // Login successful
                     $_SESSION['admin_id'] = $row['id'];
@@ -33,9 +34,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     header("Location: index.php");
                     exit();
+                    
                 } else {
+
                     $error = "Invalid username or password";
+                    
                 }
+
             }
         } else {
             $error = "Invalid username or password";
